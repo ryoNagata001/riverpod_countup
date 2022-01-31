@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_countup/logic/button_animation_logic.dart';
 import 'package:riverpod_countup/provider.dart';
 import 'package:riverpod_countup/view_model.dart';
 
@@ -36,7 +37,7 @@ class MyHomePage extends ConsumerStatefulWidget {
   ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends ConsumerState<MyHomePage> {
+class _MyHomePageState extends ConsumerState<MyHomePage> with TickerProviderStateMixin {
   late ViewModel _viewModel;
 
   @override
@@ -44,7 +45,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     super.initState();
 
     _viewModel = widget.viewModel;
-    _viewModel.setRef(ref);
+    _viewModel.setRef(ref, this);
   }
 
   @override
@@ -69,12 +70,18 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                 FloatingActionButton(
                   // count up
                   onPressed: () => _viewModel.onIncrease(),
-                  child: const Icon(CupertinoIcons.plus),
+                  child: ButtonAnimation(
+                    animationCombination: _viewModel.animationPlus,
+                    icon: CupertinoIcons.plus,
+                  ),
                 ),
                 FloatingActionButton(
                   // cound down
                   onPressed: () => _viewModel.onDecrease(),
-                  child: const Icon(CupertinoIcons.minus),
+                  child: ButtonAnimation(
+                    animationCombination: _viewModel.animationMinus,
+                    icon: CupertinoIcons.minus,
+                  ),
                 ),
               ],
             ),
@@ -89,9 +96,32 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        // refresh
-        onPressed: () => _viewModel.onReset(),
-        child: const Icon(Icons.refresh),
+          // refresh
+          onPressed: () => _viewModel.onReset(),
+          child: ButtonAnimation(
+            animationCombination: _viewModel.animationReset,
+            icon: CupertinoIcons.refresh,
+          )),
+    );
+  }
+}
+
+class ButtonAnimation extends StatelessWidget {
+  final AnimationCombination animationCombination;
+  final IconData icon;
+  const ButtonAnimation({
+    Key? key,
+    required this.animationCombination,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: animationCombination.animationScale,
+      child: RotationTransition(
+        turns: animationCombination.animationRotation,
+        child: Icon(icon),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:riverpod_countup/data/count_data.dart';
+import 'package:riverpod_countup/logic/count_data_change_notifier.dart';
 
-class SoundLogic {
+class SoundLogic with CountDataChangedNotifier {
   static const SOUND_DATA_UP = 'sounds/Onoma-Flash07-1.mp3';
   static const SOUND_DATA_DOWN = 'sounds/Onoma-Flash08-1.mp3';
   static const SOUND_DATA_RESET = 'sounds/Onoma-Flash09-1.mp3';
@@ -14,6 +15,7 @@ class SoundLogic {
     _cache.loadAll([SOUND_DATA_UP, SOUND_DATA_DOWN, SOUND_DATA_RESET]);
   }
 
+  @override
   void valueChanged(CountData oldData, CountData newData) {
     if (newData.countUp == 0 && newData.countDown == 0 && newData.count == 0) {
       _playResetSound();
